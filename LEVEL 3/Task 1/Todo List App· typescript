@@ -1,0 +1,153 @@
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Trash2, Edit } from "lucide-react";
+
+export default function TodoApp() {
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("Medium");
+  const [dueDate, setDueDate] = useState("");
+  const [editIndex, setEditIndex] = useState(null);
+
+  // Load tasks from localStorage
+  useEffect(() => {
+    const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    setTasks(storedTasks);
+  }, []);
+
+  // Save tasks to localStorage
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addOrUpdateTask = () => {
+    if (!title.trim()) return;
+    const newTask = { title, description, priority, dueDate, completed: false };
+
+    if (editIndex !== null) {
+      const updatedTasks = [...tasks];
+      updatedTasks[editIndex] = { ...updatedTasks[editIndex], ...newTask };
+      setTasks(updatedTasks);
+      setEditIndex(null);
+    } else {
+      setTasks([...tasks, newTask]);
+    }
+
+    setTitle("");
+    setDescription("");
+    setPriority("Medium");
+    setDueDate("");
+  };
+
+  const toggleCompletion = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].completed = !updatedTasks[index].completed;
+    setTasks(updatedTasks);
+  };
+
+  const deleteTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
+
+  const editTask = (index) => {
+    const task = tasks[index];
+    setTitle(task.title);
+    setDescription(task.description);
+    setPriority(task.priority);
+    setDueDate(task.dueDate);
+    setEditIndex(index);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-6">To-Do List</h1>
+
+        {/* Task Input Form */}
+        <Card className="mb-6">
+          <CardContent className="space-y-4 p-4">
+            <Input
+              placeholder="Task Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <Textarea
+              placeholder="Task Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <div className="flex gap-4">
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
+            </div>
+            <Button className="w-full" onClick={addOrUpdateTask}>
+              {editIndex !== null ? "Update Task" : "Add Task"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Task List */}
+        <div className="space-y-3">
+          {tasks.map((task, index) => (
+            <Card key={index}>
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => toggleCompletion(index)}
+                  />
+                  <div>
+                    <h2
+                      className={`font-semibold text-lg ${
+                        task.completed ? "line-through text-gray-400" : ""
+                      }`}
+                    >
+                      {task.title}
+                    </h2>
+                    {task.description && (
+                      <p className="text-sm text-gray-600">{task.description}</p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Priority: {task.priority} | Due: {task.dueDate || "N/A"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="icon" onClick={() => editTask(index)}>
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => deleteTask(index)}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
