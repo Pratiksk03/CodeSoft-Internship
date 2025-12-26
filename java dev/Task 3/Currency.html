@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Currency Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    .row {
+      margin: 15px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Currency Converter</h1>
+
+  <div class="row">
+    <label for="baseCurrency">From (Base Currency):</label>
+    <select id="baseCurrency">
+      <!-- A few sample currencies. You can extend this list or load dynamically -->
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+      <option value="INR">INR</option>
+      <option value="GBP">GBP</option>
+      <option value="JPY">JPY</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="targetCurrency">To (Target Currency):</label>
+    <select id="targetCurrency">
+      <option value="INR">INR</option>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+      <option value="GBP">GBP</option>
+      <option value="JPY">JPY</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount" min="0" step="any" />
+  </div>
+
+  <button onclick="convertCurrency()">Convert</button>
+
+  <div class="error" id="errorMsg"></div>
+  <div class="result" id="resultDisplay"></div>
+
+  <script>
+    // You can use exchangerate.host API for free real‑time rates. :contentReference[oaicite:0]{index=0}
+    const API_URL = "https://api.exchangerate.host/convert";
+
+    async function convertCurrency() {
+      const base = document.getElementById("baseCurrency").value;
+      const target = document.getElementById("targetCurrency").value;
+      const amt = parseFloat(document.getElementById("amount").value);
+      const errorEl = document.getElementById("errorMsg");
+      const resultEl = document.getElementById("resultDisplay");
+
+      errorEl.textContent = "";
+      resultEl.textContent = "";
+
+      if (isNaN(amt) || amt < 0) {
+        errorEl.textContent = "Please enter a valid positive number for amount.";
+        return;
+      }
+      if (base === target) {
+        // same currency, conversion rate = 1
+        resultEl.textContent = `${amt.toFixed(2)} ${target}`;
+        return;
+      }
+
+      try {
+        // Build URL: e.g. https://api.exchangerate.host/convert?from=USD&to=INR&amount=100
+        const url = `${API_URL}?from=${encodeURIComponent(base)}&to=${encodeURIComponent(target)}&amount=${amt}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (!data || !data.result) {
+          throw new Error("Invalid response from API");
+        }
+
+        const converted = data.result;
+        resultEl.textContent = `${amt.toFixed(2)} ${base} = ${converted.toFixed(2)} ${target}`;
+      } catch (err) {
+        console.error("Conversion error:", err);
+        errorEl.textContent = "Sorry, couldn’t fetch conversion. Please try again later.";
+      }
+    }
+  </script>
+
+</body>
+</html>

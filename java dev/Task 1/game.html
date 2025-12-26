@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Number Guessing Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      color: #333;
+    }
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 80px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .stats {
+      margin-top: 30px;
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 Number Guessing Game</h1>
+  <p>Guess a number between <strong>1 and 100</strong>.</p>
+  <input type="number" id="guessInput" min="1" max="100" />
+  <button onclick="makeGuess()">Submit Guess</button>
+  <div class="message" id="message"></div>
+  <div class="stats" id="stats"></div>
+  <button onclick="startNewGame()" id="newGameBtn" style="display: none;">🔁 Play Again</button>
+
+  <script>
+    let numberToGuess;
+    let attemptsLeft;
+    let round = 1;
+    let score = 0;
+
+    function startNewGame() {
+      numberToGuess = Math.floor(Math.random() * 100) + 1;
+      attemptsLeft = 5;
+      document.getElementById("message").textContent = '';
+      document.getElementById("guessInput").value = '';
+      document.getElementById("newGameBtn").style.display = 'none';
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById("stats").textContent =
+        `🎲 Round: ${round} | 🧠 Score: ${score} | 💼 Attempts Left: ${attemptsLeft}`;
+    }
+
+    function makeGuess() {
+      const guess = parseInt(document.getElementById("guessInput").value);
+      if (isNaN(guess) || guess < 1 || guess > 100) {
+        document.getElementById("message").textContent = "❌ Please enter a number between 1 and 100.";
+        return;
+      }
+
+      attemptsLeft--;
+
+      if (guess === numberToGuess) {
+        document.getElementById("message").textContent = `✅ Correct! The number was ${numberToGuess}.`;
+        score++;
+        round++;
+        document.getElementById("newGameBtn").style.display = 'inline-block';
+      } else if (attemptsLeft === 0) {
+        document.getElementById("message").textContent = `💥 Out of attempts! The number was ${numberToGuess}.`;
+        round++;
+        document.getElementById("newGameBtn").style.display = 'inline-block';
+      } else {
+        document.getElementById("message").textContent = guess < numberToGuess ? "📉 Too low!" : "📈 Too high!";
+      }
+
+      updateStats();
+    }
+
+    // Start the first game on page load
+    window.onload = startNewGame;
+  </script>
+</body>
+</html>

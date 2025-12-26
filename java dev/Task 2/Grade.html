@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Grade Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label, input {
+      display: block;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    input[type="number"] {
+      width: 100px;
+      padding: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    .results {
+      margin-top: 25px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .results p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📚 Student Grade Calculator</h1>
+
+  <form id="marksForm">
+    <label>Math:</label>
+    <input type="number" name="math" min="0" max="100" required>
+
+    <label>Science:</label>
+    <input type="number" name="science" min="0" max="100" required>
+
+    <label>English:</label>
+    <input type="number" name="english" min="0" max="100" required>
+
+    <label>History:</label>
+    <input type="number" name="history" min="0" max="100" required>
+
+    <label>Computer:</label>
+    <input type="number" name="computer" min="0" max="100" required>
+
+    <button type="submit">Calculate Result</button>
+  </form>
+
+  <div class="results" id="results" style="display: none;">
+    <p id="totalMarks"></p>
+    <p id="percentage"></p>
+    <p id="grade"></p>
+  </div>
+
+  <script>
+    document.getElementById("marksForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const subjects = ["math", "science", "english", "history", "computer"];
+      let total = 0;
+
+      for (let subject of subjects) {
+        const value = parseFloat(form[subject].value);
+        if (isNaN(value) || value < 0 || value > 100) {
+          alert(`Please enter valid marks for ${subject}`);
+          return;
+        }
+        total += value;
+      }
+
+      const numSubjects = subjects.length;
+      const percentage = total / numSubjects;
+
+      let grade = '';
+      if (percentage >= 90) {
+        grade = 'A+';
+      } else if (percentage >= 80) {
+        grade = 'A';
+      } else if (percentage >= 70) {
+        grade = 'B';
+      } else if (percentage >= 60) {
+        grade = 'C';
+      } else if (percentage >= 50) {
+        grade = 'D';
+      } else {
+        grade = 'F';
+      }
+
+      document.getElementById("totalMarks").textContent = `🔢 Total Marks: ${total} / ${numSubjects * 100}`;
+      document.getElementById("percentage").textContent = `📊 Percentage: ${percentage.toFixed(2)}%`;
+      document.getElementById("grade").textContent = `🎓 Grade: ${grade}`;
+      document.getElementById("results").style.display = "block";
+    });
+  </script>
+
+</body>
+</html>
